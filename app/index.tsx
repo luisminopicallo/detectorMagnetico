@@ -62,6 +62,7 @@ export default function App() {
                 <Text style={styles.hint}>Envía una alerta al detectar el imán.</Text>
             </View>
 
+            {/* SELECCIÓN DE MODO */}
             <View style={styles.controlGroup}>
                 <Text style={styles.groupTitle}>Modo de Operación</Text>
                 <View style={styles.segmentContainer}>
@@ -78,6 +79,27 @@ export default function App() {
                         <Text style={[styles.segmentText, logic.detectMode === 'motion' && styles.segmentTextActive]}>Cambio</Text>
                     </TouchableOpacity>
                 </View>
+
+                {logic.detectMode === 'motion' && (
+                    <View style={{marginTop: 20}}>
+                        <Text style={[styles.label, {fontSize: 14}]}>
+                            Tolerancia al Movimiento: {logic.motionThreshold.toFixed(2)} G
+                        </Text>
+                        <Slider
+                            style={styles.slider}
+                            minimumValue={0.05} // Muy estricto (no te muevas nada)
+                            maximumValue={0.50} // Muy permisivo (puedes andar)
+                            step={0.01}
+                            value={logic.motionThreshold}
+                            onValueChange={logic.setMotionThreshold}
+                            minimumTrackTintColor="#8E8E93"
+                        />
+                        <Text style={styles.hint}>
+                            Si vibras por error al moverte, sube este valor.
+                            Si se bloquea demasiado, bájalo.
+                        </Text>
+                    </View>
+                )}
             </View>
 
             <View style={styles.controlGroup}>

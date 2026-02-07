@@ -10,7 +10,7 @@ export const useVibration = () => {
   const [cooldownTime, setCooldownTime] = useState(2000);
   
   // NUEVO: Elegir motor para el modo Fuerte ('HAPTIC' o 'STANDARD')
-  const [heavyType, setHeavyType] = useState('HAPTIC'); 
+  const [heavyType, setHeavyType] = useState('STANDARD'); 
 
   const isVibrating = useRef(false); 
 

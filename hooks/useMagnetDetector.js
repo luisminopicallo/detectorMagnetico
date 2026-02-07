@@ -19,27 +19,24 @@ export const useMagnetDetector = () => {
     triggerVibration, isVibrating 
   } = useVibration();
 
+  // --- ESTADOS ---
   const [data, setData] = useState({ x: 0, y: 0, z: 0 });
   const [baseline, setBaseline] = useState(0); 
   const [isMagicMode, setIsMagicMode] = useState(false);
-  
+  const [isVisualCueActive, setIsVisualCueActive] = useState(false); 
+
   const lastMagnitude = useRef(0);    
   const currentDeviceMotion = useRef(0); 
   const lastAccel = useRef({ x: 0, y: 0, z: 0 });
 
   const [detectMode, setDetectMode] = useState('proximity'); 
   const [sensitivity, setSensitivity] = useState(15);
-  
-  // Estado para el umbral de movimiento (Editable)
-  // Valor por defecto 0.15 Gs
   const [motionThreshold, setMotionThreshold] = useState(0.15); 
 
   useEffect(() => {
-    setHeavyType('STANDARD'); // Valor por defecto para el modo fuerte
-    Magnetometer.setUpdateInterval(100); 
+    Magnetometer.setUpdateInterval(60); 
     const magSub = Magnetometer.addListener(handleSensorData);
-
-    Accelerometer.setUpdateInterval(30);
+    Accelerometer.setUpdateInterval(60);
     const accelSub = Accelerometer.addListener(handleAccelData);
 
     return () => {
@@ -52,7 +49,6 @@ export const useMagnetDetector = () => {
       const change = Math.abs(x - lastAccel.current.x) + 
                      Math.abs(y - lastAccel.current.y) + 
                      Math.abs(z - lastAccel.current.z);
-      
       currentDeviceMotion.current = change;
       lastAccel.current = { x, y, z };
   };
@@ -78,16 +74,13 @@ export const useMagnetDetector = () => {
         if (diff > sensitivity) shouldTrigger = true;
     } 
     else {
-        // USAMOS EL NUEVO VALOR PARAMETRIZABLE
         if (currentDeviceMotion.current > motionThreshold) {
             lastMagnitude.current = currentMagnitude; 
             return; 
         }
-
         const change = Math.abs(currentMagnitude - lastMagnitude.current);
-        const magneticTrigger = Math.max(2, sensitivity / 3); 
-        
-        if (change > magneticTrigger) shouldTrigger = true;
+        const minimumChangeNeeded = Math.max(3, sensitivity / 3); 
+        if (change > minimumChangeNeeded) shouldTrigger = true;
     }
 
     lastMagnitude.current = currentMagnitude;
@@ -98,9 +91,15 @@ export const useMagnetDetector = () => {
   };
 
   const handleDetection = () => {
-    console.log("¡Objeto Detectado!");
+    console.log("¡Detección!");
     sendNotification();
     triggerVibration();
+
+    setIsVisualCueActive(true);
+    
+    setTimeout(() => {
+        setIsVisualCueActive(false);
+    }, 200);
   };
 
   const calibrate = (silent = false) => {
@@ -129,6 +128,7 @@ export const useMagnetDetector = () => {
     pulseDelay, setPulseDelay,
     cooldownTime, setCooldownTime,
     heavyType, setHeavyType,
-    motionThreshold, setMotionThreshold
+    motionThreshold, setMotionThreshold,
+    isVisualCueActive 
   };
 };
